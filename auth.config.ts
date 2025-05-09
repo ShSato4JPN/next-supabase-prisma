@@ -1,24 +1,36 @@
-// import jwt from "jsonwebtoken";
-// import Email from "next-auth/providers/email";
+import CredentialsProvider from "next-auth/providers/credentials";
 
-// import type { NextAuthConfig } from "next-auth";
+import type { NextAuthConfig } from "next-auth";
 
-// export default {
-//   providers: [],
-//   callbacks: {
-//     async session({ session, user }) {
-//       const signingSecret = process.env.SUPABASE_JWT_SECRET;
-//       if (signingSecret) {
-//         const payload = {
-//           aud: "authenticated",
-//           exp: Math.floor(new Date(session.expires).getTime() / 1000),
-//           sub: user.id,
-//           email: user.email,
-//           role: "authenticated",
-//         };
-//         session.supabaseAccessToken = jwt.sign(payload, signingSecret);
-//       }
-//       return session;
-//     },
-//   },
-// } satisfies NextAuthConfig;
+import { supabase } from "@/supabaseClient";
+
+export default {
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: credentials.email as string,
+          password: credentials.password as string,
+        });
+
+        if (error) {
+          throw new Error("auth error");
+        }
+
+        if (data) {
+          return {
+            email: "test",
+            password: "password",
+          };
+        } else {
+          return null;
+        }
+      },
+    }),
+  ],
+} satisfies NextAuthConfig;

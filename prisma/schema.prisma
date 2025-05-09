@@ -12,7 +12,6 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
 model Account {
   id                 String  @id @default(cuid())
   userId             String  @map("user_id")
@@ -51,7 +50,6 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  todos         Todo[]
 
   @@map("users")
 }
@@ -63,15 +61,4 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
-}
-
-model Todo {
-  id         String     @id @default(cuid())
-  userId     String
-  title      String
-  published  Boolean    @default(true)
-  content    String     @db.VarChar(500)
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("todos")
 }
